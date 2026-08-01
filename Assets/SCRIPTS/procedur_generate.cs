@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class procedur_generate : MonoBehaviour
 {
-    public Transform Player;
-    public Chunk[] ChunkPrefabs;        
-    public Chunk[] ChunkPrefabs_step2;  
+    // Поле Player больше не нужно в Update, но оставим для инициализации первого чанка
+    public Transform Player; 
+    public Chunk[] ChunkPrefabs;
+    public Chunk[] ChunkPrefabs_step2;
     public Chunk FirstChunk;
 
     private List<Chunk> spawnedChunks = new List<Chunk>();
-    private int count = 0; 
+    private int count = 0;
 
     private void Start()
     {
@@ -18,49 +19,40 @@ public class procedur_generate : MonoBehaviour
         {
             spawnedChunks.Add(FirstChunk);
         }
-        SpawnNewChunk(); 
-    }
-
-    private void Update()
-    {
-        if (spawnedChunks.Count == 0) return;
-
-        if (Player.position.z > spawnedChunks[spawnedChunks.Count - 1].End.position.z - 40f)
+        
+        for (int i = 0; i < 3; i++)
         {
             SpawnNewChunk();
         }
     }
 
+
     private void DelChunk()
     {
-        // for (int i = 0; i < spawnedChunks.Count - 1; i++)
-        // {
-        //     if (spawnedChunks[i] != null)
-        //     {
-        //         Destroy(spawnedChunks[i].gameObject);
-        //     }
-        // }
-        // spawnedChunks.Clear();
+        if (spawnedChunks.Count > 0)
+        {
+            Chunk oldestChunk = spawnedChunks[0];
+            if (oldestChunk != null)
+            {
+                Destroy(oldestChunk.gameObject);
+            }
+            spawnedChunks.RemoveAt(0);
+        }
         count += 1;
     }
 
-    private void SpawnNewChunk()
-    {   
+    public void SpawnNewChunk()
+    {
         if (spawnedChunks.Count >= 6)
         {
             DelChunk();
-            // return; 
-        } 
+        }
 
         Chunk prefabToSpawn = null;
-
-        switch (count) 
+        switch (count)
         {
             case 0:
                 prefabToSpawn = ChunkPrefabs[Random.Range(0, ChunkPrefabs.Length)];
-                break;
-            case 1: 
-                prefabToSpawn = ChunkPrefabs_step2[Random.Range(0, ChunkPrefabs_step2.Length)];
                 break;
             default:
                 prefabToSpawn = ChunkPrefabs_step2[Random.Range(0, ChunkPrefabs_step2.Length)];
@@ -75,14 +67,17 @@ public class procedur_generate : MonoBehaviour
             if (spawnedChunks.Count == 0)
             {
                 spawnPosition = new Vector3(Player.position.x, Player.position.y, Player.position.z);
-                newChunk.transform.position = spawnPosition - newChunk.Begin.position;
+                newChunk.transform.position = spawnPosition - (newChunk.Begin.position - newChunk.transform.position);
             }
             else
             {
-                spawnPosition = spawnedChunks[spawnedChunks.Count - 1].End.position + (newChunk.transform.position - newChunk.Begin.position);
+                Vector3 lastChunkEnd = spawnedChunks[spawnedChunks.Count - 1].End.position;
+                Vector3 newChunkBeginOffset = newChunk.Begin.position - newChunk.transform.position;
+                
+                spawnPosition = lastChunkEnd - newChunkBeginOffset;
                 newChunk.transform.position = spawnPosition;
             }
-            
+
             spawnedChunks.Add(newChunk);
         }
     }
