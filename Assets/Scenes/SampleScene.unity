@@ -26122,6 +26122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _explosionPrefab: {fileID: 0}
+  _menuSceneName: EscMenu
 --- !u!136 &908255774
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -26164,8 +26165,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.49007416, y: 0.5967901, z: 1.2246246}
-  m_Center: {x: -0.35638428, y: -0.24820757, z: -0.0026016235}
+  m_Size: {x: 0.66446304, y: 0.5967901, z: 1.589447}
+  m_Center: {x: -0.3824978, y: -0.24820757, z: 0.043640137}
 --- !u!54 &908255776
 Rigidbody:
   m_ObjectHideFlags: 0

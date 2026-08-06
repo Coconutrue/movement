@@ -1,11 +1,15 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; 
+using UnityEngine.SceneManagement;
 
 public class PlayerCollision : MonoBehaviour
 {
     [Header("Эффект взрыва")]
     [Tooltip("Перетащите сюда Prefab взрыва (частицы или анимацию)")]
     [SerializeField] private GameObject _explosionPrefab;
+
+    [Header("Меню")]
+    [Tooltip("Имя сцены с меню при проигрыше")]
+    [SerializeField] private string _menuSceneName = "EscMenu";
 
     private Movement _movementScript;
     private bool _isDead = false;
@@ -16,14 +20,15 @@ public class PlayerCollision : MonoBehaviour
     }
 
     private void OnTriggerEnter(Collider other)
-{
-    if (_isDead) return;
-
-    if (other.CompareTag("Obstacle"))
     {
-        Explode();
+        if (_isDead) return;
+
+        if (other.CompareTag("Obstacle"))
+        {
+            Explode();
+        }
     }
-}
+
     private void Explode()
     {
         _isDead = true;
@@ -38,7 +43,6 @@ public class PlayerCollision : MonoBehaviour
         if (_explosionPrefab != null)
         {
             Vector3 spawnPosition = visual != null ? visual.position : transform.position;
-
             Instantiate(_explosionPrefab, spawnPosition, Quaternion.identity);
         }
 
@@ -47,12 +51,11 @@ public class PlayerCollision : MonoBehaviour
             visual.gameObject.SetActive(false);
         }
 
-        Invoke(nameof(RestartGame), 2f);
+        Invoke(nameof(OpenMenuScene), 2f);
     }
 
-
-    private void RestartGame()
+    private void OpenMenuScene()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(_menuSceneName);
     }
 }
