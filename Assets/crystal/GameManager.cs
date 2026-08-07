@@ -1,12 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using YG;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public int totalScore;
-    public Text scoreText; // Ссылка на UI текст счета
+    public Text scoreText;
+    public GameObject playerObject;
+
+    private PlayerCollision _playerCollision;
 
     private void Awake()
     {
@@ -15,15 +19,24 @@ public class GameManager : MonoBehaviour
     }
 
     private void Start()
-{
-    if (YG2.isSDKEnabled) 
     {
-        LoadProgress();
-    }
-    
-    UpdateUI(); 
-}
+        if (playerObject != null)
+        {
+            _playerCollision = playerObject.GetComponent<PlayerCollision>();
+        }
 
+        if (YG2.isSDKEnabled) LoadProgress();
+        UpdateUI();
+    }
+
+    public void CompleteRespawnFromMenu()
+    {
+        SceneManager.UnloadSceneAsync("EscMenu");
+        if (_playerCollision != null)
+        {
+            _playerCollision.Revive();
+        }
+    }
 
     public void AddScore(int amount)
     {
@@ -34,11 +47,10 @@ public class GameManager : MonoBehaviour
 
     private void SaveProgress()
     {
-        YG2.saves.money = totalScore; 
+        YG2.saves.money = totalScore;
         YG2.SaveProgress();
     }
 
-    // Этот метод мы теперь будем вызывать автоматически при загрузке плагина
     public void LoadProgress()
     {
         totalScore = YG2.saves.money;

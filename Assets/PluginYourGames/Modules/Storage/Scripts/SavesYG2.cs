@@ -9,5 +9,8 @@ namespace YG
         public string language = "ru";
 
         public int money; 
+        public float lastX;
+        public float lastY;
+        public float lastZ;
     }
 }

@@ -449,6 +449,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   totalScore: 0
   scoreText: {fileID: 1891776566}
+  playerObject: {fileID: 0}
 --- !u!4 &518428353
 Transform:
   m_ObjectHideFlags: 0
@@ -2106,5 +2107,5 @@ SceneRoots:
   - {fileID: 804857031}
   - {fileID: 1738957896}
   - {fileID: 847764339}
-  - {fileID: 569733979}
   - {fileID: 518428353}
+  - {fileID: 569733979}
