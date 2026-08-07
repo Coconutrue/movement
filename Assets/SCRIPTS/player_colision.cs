@@ -13,6 +13,7 @@ public class PlayerCollision : MonoBehaviour
     private bool _isDead = false;
     private bool _isInvulnerable = false;
     private Transform _visual;
+    private int _respawnCount = 0; 
 
     private void Start()
     {
@@ -52,7 +53,14 @@ public class PlayerCollision : MonoBehaviour
 
         if (_visual != null) _visual.gameObject.SetActive(false);
 
-        Invoke(nameof(OpenMenuSceneAdditive), 1f);
+        if (_respawnCount < 2)
+        {
+            Invoke(nameof(OpenMenuSceneAdditive), 1f);
+        }
+        else
+        {
+            Invoke(nameof(GameOverToMainMenu), 1f);
+        }
     }
 
     private void OpenMenuSceneAdditive()
@@ -61,9 +69,16 @@ public class PlayerCollision : MonoBehaviour
         SceneManager.LoadScene(_menuSceneName, LoadSceneMode.Additive);
     }
 
+    private void GameOverToMainMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Menu"); 
+    }
+
     public void Revive()
     {
         _isDead = false;
+        _respawnCount++; 
         Time.timeScale = 1f;
 
         var eventSystems = FindObjectsByType<UnityEngine.EventSystems.EventSystem>(FindObjectsSortMode.None);
