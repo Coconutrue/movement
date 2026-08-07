@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -31,7 +32,19 @@ public class GameManager : MonoBehaviour
 
     public void CompleteRespawnFromMenu()
     {
-        SceneManager.UnloadSceneAsync("EscMenu");
+        StartCoroutine(UnloadMenuRoutine());
+    }
+
+    private IEnumerator UnloadMenuRoutine()
+    {
+        AsyncOperation unloadOp = SceneManager.UnloadSceneAsync("EscMenu");
+        while (!unloadOp.isDone)
+        {
+            yield return null;
+        }
+
+        SceneManager.SetActiveScene(gameObject.scene);
+
         if (_playerCollision != null)
         {
             _playerCollision.Revive();

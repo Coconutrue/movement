@@ -65,13 +65,15 @@ public class PlayerCollision : MonoBehaviour
     {
         _isDead = false;
         Time.timeScale = 1f;
-        SceneManager.SetActiveScene(gameObject.scene);
-        StartCoroutine(ActivationRoutine());
-    }
 
-    private IEnumerator ActivationRoutine()
-    {
-        yield return null;
+        var eventSystems = FindObjectsByType<UnityEngine.EventSystems.EventSystem>(FindObjectsSortMode.None);
+        foreach (var es in eventSystems)
+        {
+            if (es.gameObject.scene != gameObject.scene)
+            {
+                Destroy(es.gameObject);
+            }
+        }
 
         if (_visual != null) _visual.gameObject.SetActive(true);
 
@@ -84,7 +86,10 @@ public class PlayerCollision : MonoBehaviour
             rb.WakeUp();
         }
 
-        if (_movementScript != null) _movementScript.enabled = true;
+        if (_movementScript != null)
+        {
+            _movementScript.enabled = true;
+        }
 
         StartCoroutine(InvulnerabilityRoutine());
     }
