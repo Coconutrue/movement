@@ -5,5 +5,9 @@ namespace YG
     public partial class SavesYG
     {
         public int idSave;
+        public bool isFirstGame = true;
+        public string language = "ru";
+
+        public int money; 
     }
 }
