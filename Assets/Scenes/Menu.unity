@@ -285,6 +285,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _bestTimeText: {fileID: 1016855682}
   _lastTimeText: {fileID: 478292601}
+  _scoreText: {fileID: 1891776566}
 --- !u!4 &155247527
 Transform:
   m_ObjectHideFlags: 0
@@ -543,55 +544,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 499502908}
   m_CullTransparentMesh: 1
---- !u!1 &518428351
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 518428353}
-  - component: {fileID: 518428352}
-  m_Layer: 0
-  m_Name: _GameManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &518428352
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 518428351}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80689b6fb9e229d49993eacfc081c7a8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  totalScore: 0
-  scoreText: {fileID: 1891776566}
-  playerObject: {fileID: 0}
-  currentTimeText: {fileID: 478292601}
-  bestTimeText: {fileID: 1016855682}
---- !u!4 &518428353
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 518428351}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -34.7139, y: 27.908817, z: 169.7352}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &569733978
 GameObject:
   m_ObjectHideFlags: 0
@@ -2316,5 +2268,4 @@ SceneRoots:
   - {fileID: 1738957896}
   - {fileID: 847764339}
   - {fileID: 155247527}
-  - {fileID: 518428353}
   - {fileID: 569733979}
