@@ -250,6 +250,14 @@ public class VerticalShipMenu : MonoBehaviour
         PlayerPrefs.Save();
         
         UpdateButtonState();
+
+        // НОВАЯ СТРОКА: Если скрипт отображения баланса на сцене, принудительно обновляем UI
+        if (MainMenuDisplay.Instance != null)
+        {
+            MainMenuDisplay.Instance.DisplayStats();
+        }
+
         Debug.Log($"Успешная покупка: {shipList[index].nameOfShip}");
     }
+
 }

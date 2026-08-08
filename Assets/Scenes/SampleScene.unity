@@ -59736,6 +59736,7 @@ MonoBehaviour:
   - {fileID: 5908545767809548971, guid: 885fcd808115e18488f46778d42de8e2, type: 3}
   - {fileID: 6297865103388658575, guid: 7ecbecd57a7470d45932525613185404, type: 3}
   - {fileID: 7810792619795789425, guid: f25ed119be9287646b62e1dccce0ad21, type: 3}
+  - {fileID: 1470503092413937625, guid: 2dde2f7bb4fa79549bc7d44de83a776c, type: 3}
   playerRootTransform: {fileID: 593404565}
 --- !u!4 &1875500466
 Transform:
