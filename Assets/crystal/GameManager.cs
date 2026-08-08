@@ -11,11 +11,21 @@ public class GameManager : MonoBehaviour
     public Text scoreText;
     public GameObject playerObject;
 
+    [Header("UI Времени")]
+    public Text currentTimeText;
+    public Text bestTimeText;
+
+    private float _currentTime;
+    private bool _isTimerRunning;
     private PlayerCollision _playerCollision;
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
+        if (Instance == null) 
+        {
+            Instance = this;
+            Time.timeScale = 1f; // Исправление для Задачи №2
+        }
         else { Destroy(gameObject); return; }
     }
 
@@ -26,8 +36,33 @@ public class GameManager : MonoBehaviour
             _playerCollision = playerObject.GetComponent<PlayerCollision>();
         }
 
-        if (YG2.isSDKEnabled) LoadProgress();
-        UpdateUI();
+        YG2.onGetSDKData += LoadProgress;
+
+        if (YG2.isSDKEnabled) 
+        {
+            LoadProgress();
+        }
+        else
+        {
+            UpdateUI();
+        }
+
+        _currentTime = 0f;
+        _isTimerRunning = true;
+    }
+
+    private void OnDestroy()
+    {
+        YG2.onGetSDKData -= LoadProgress;
+    }
+
+    private void Update()
+    {
+        if (_isTimerRunning && Time.timeScale > 0f)
+        {
+            _currentTime += Time.deltaTime;
+            UpdateTimerUI();
+        }
     }
 
     public void CompleteRespawnFromMenu()
@@ -48,13 +83,31 @@ public class GameManager : MonoBehaviour
         if (_playerCollision != null)
         {
             _playerCollision.Revive();
+            _isTimerRunning = true; 
         }
+    }
+
+    // Вызывать этот метод ровно в момент смерти игрока!
+    public void StopTimerOnDeath()
+    {
+        _isTimerRunning = false;
+        
+        int finalSeconds = Mathf.FloorToInt(_currentTime);
+        YG2.saves.lastTime = finalSeconds;
+
+        if (finalSeconds > YG2.saves.bestTime)
+        {
+            YG2.saves.bestTime = finalSeconds;
+        }
+
+        // Важно: сохраняем результаты времени в облако Яндекса
+        YG2.SaveProgress(); 
+        UpdateUI();
     }
 
     public void AddScore(int amount)
     {
         totalScore += amount;
-        UpdateUI();
         SaveProgress();
     }
 
@@ -62,6 +115,7 @@ public class GameManager : MonoBehaviour
     {
         YG2.saves.money = totalScore;
         YG2.SaveProgress();
+        UpdateUI();
     }
 
     public void LoadProgress()
@@ -73,6 +127,15 @@ public class GameManager : MonoBehaviour
     private void UpdateUI()
     {
         if (scoreText != null)
-            scoreText.text = "Счет: " + totalScore;
+            scoreText.text = " " + totalScore;
+
+        if (bestTimeText != null)
+            bestTimeText.text = " " + YG2.saves.bestTime ;
+    }
+
+    private void UpdateTimerUI()
+    {
+        if (currentTimeText != null)
+            currentTimeText.text = " " + Mathf.FloorToInt(_currentTime);
     }
 }

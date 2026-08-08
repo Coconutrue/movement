@@ -12,5 +12,9 @@ namespace YG
         public float lastX;
         public float lastY;
         public float lastZ;
+
+        public int bestTime;
+        public int lastTime;
+
     }
 }

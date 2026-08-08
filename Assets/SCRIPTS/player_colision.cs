@@ -35,6 +35,11 @@ public class PlayerCollision : MonoBehaviour
     {
         _isDead = true;
 
+         if (GameManager.Instance != null)
+        {
+            GameManager.Instance.StopTimerOnDeath();
+        }
+        
         if (_movementScript != null) _movementScript.enabled = false;
 
         var rb = GetComponent<Rigidbody>();
