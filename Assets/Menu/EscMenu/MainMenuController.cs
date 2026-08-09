@@ -7,9 +7,11 @@ public class MainMenuController : MonoBehaviour
     [Tooltip("Имя сцены главного меню")]
     [SerializeField] private string _mainMenuSceneName = "Menu";
 
-    // Этот метод мы будем вызывать по нажатию на кнопку
     public void GoToMainMenu()
     {
+        // ВОТ ЗДЕСЬ ВОЗВРАЩАЕМ ВРЕМЯ В НОРМУ:
+        Time.timeScale = 1f; 
+        
         SceneManager.LoadScene(_mainMenuSceneName);
     }
 }
