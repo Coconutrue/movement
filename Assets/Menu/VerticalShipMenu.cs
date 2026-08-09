@@ -59,6 +59,12 @@ public class VerticalShipMenu : MonoBehaviour
     {
         PlayerPrefs.SetInt($"{_savePrefix}_Owned_0", 1);
 
+        if (!PlayerPrefs.HasKey($"Selected_{_savePrefix}_Index"))
+        {
+            PlayerPrefs.SetInt($"Selected_{_savePrefix}_Index", 0);
+            PlayerPrefs.Save();
+        }
+
         for (int i = 0; i < shipList.Count; i++)
         {
             GameObject newBtn = Instantiate(buttonPrefab, contentContainer);

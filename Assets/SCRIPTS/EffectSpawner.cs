@@ -1,18 +1,16 @@
-
-
-
-
-
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EffectSpawner : MonoBehaviour
 {
-    [Header("Список префабов кораблей (ПОРЯДОК КАК В МЕНЮ)")]
+    [Header("Список префабов эффектов (ПОРЯДОК КАК В МЕНЮ)")]
     [SerializeField] private List<GameObject> effectPrefabs;
 
-    [Header("Куда вставить модель корабля")]
+    [Header("Куда вставить модель эффекта")]
     [SerializeField] private Transform playerRootTransform;
+
+    [Header("Настройки сохранения")]
+    [SerializeField] private string _savePrefix = "Effect";
 
     void Awake()
     {
@@ -24,7 +22,7 @@ public class EffectSpawner : MonoBehaviour
             }
         }
 
-        int selectedIndex = PlayerPrefs.GetInt("SelectedShipIndex", 0);
+        int selectedIndex = PlayerPrefs.GetInt($"Selected_{_savePrefix}_Index", 0);
         if (selectedIndex >= 0 && selectedIndex < effectPrefabs.Count)
         {
             GameObject prefabToSpawn = effectPrefabs[selectedIndex];

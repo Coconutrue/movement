@@ -9,6 +9,9 @@ public class GameplayShipSpawner : MonoBehaviour
     [Header("Куда вставить модель корабля")]
     [SerializeField] private Transform playerRootTransform;
 
+    [Header("Настройки сохранения")]
+    [SerializeField] private string _savePrefix = "Ship";
+
     void Awake()
     {
         foreach (Transform child in playerRootTransform)
@@ -19,7 +22,7 @@ public class GameplayShipSpawner : MonoBehaviour
             }
         }
 
-        int selectedIndex = PlayerPrefs.GetInt("SelectedShipIndex", 0);
+        int selectedIndex = PlayerPrefs.GetInt($"Selected_{_savePrefix}_Index", 0);
         if (selectedIndex >= 0 && selectedIndex < shipPrefabs.Count)
         {
             GameObject prefabToSpawn = shipPrefabs[selectedIndex];
