@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // Подключаем библиотеку TextMeshPro
-using YG;    // Главное пространство имен плагина YG2
+using TMPro;
+using YG;
 
 public enum PurchaseType { SoftCurrency, YandexMoney }
 
@@ -13,7 +13,7 @@ public class WebShipData
     public GameObject fbxPrefab; 
     public PurchaseType purchaseType;
     public int price;
-    public string yandexProductId; // ID покупки из консоли Яндекса
+    public string yandexProductId;
 }
 
 public class VerticalShipMenu : MonoBehaviour
@@ -21,8 +21,11 @@ public class VerticalShipMenu : MonoBehaviour
     [Header("UI элементы")]
     [SerializeField] private RectTransform contentContainer;
     [SerializeField] private GameObject buttonPrefab;
-    [SerializeField] private Button actionButton; // Кнопка "Купить / Выбрать"
-    [SerializeField] private TextMeshProUGUI actionButtonText; // Текст на кнопке (теперь TMP)
+    [SerializeField] private Button actionButton; 
+    [SerializeField] private TextMeshProUGUI actionButtonText; 
+
+    [Header("Настройки категории")]
+    [SerializeField] private string _savePrefix = "Ship";
 
     [Header("3D настройки")]
     [SerializeField] private Transform spawnPoint; 
@@ -36,7 +39,6 @@ public class VerticalShipMenu : MonoBehaviour
 
     private void OnEnable()
     {
-        // Подписка на событие через безопасные директивы
 #if yandexInApp
         YG2.iap.onBuy += OnYandexPurchaseSuccess;
 #elif YG_PAYMENTS
@@ -55,8 +57,7 @@ public class VerticalShipMenu : MonoBehaviour
 
     void Start()
     {
-        // Первый корабль (индекс 0) разблокирован бесплатно по умолчанию
-        PlayerPrefs.SetInt("Ship_Owned_0", 1);
+        PlayerPrefs.SetInt($"{_savePrefix}_Owned_0", 1);
 
         for (int i = 0; i < shipList.Count; i++)
         {
@@ -107,13 +108,12 @@ public class VerticalShipMenu : MonoBehaviour
         UpdateButtonState();
     }
 
-    // Обновляет текст и состояние главной кнопки управления
     private void UpdateButtonState()
     {
         if (actionButtonText == null) return;
 
         bool isOwned = IsShipOwned(currentSelectedIndex);
-        int activeShipIndex = PlayerPrefs.GetInt("SelectedShipIndex", 0);
+        int activeShipIndex = PlayerPrefs.GetInt($"Selected_{_savePrefix}_Index", 0);
 
         if (isOwned)
         {
@@ -143,11 +143,9 @@ public class VerticalShipMenu : MonoBehaviour
         }
     }
 
-    // Проверка, владеет ли игрок выбранным кораблем
     private bool IsShipOwned(int index)
     {
-        // Проверяем локальное сохранение монетных/бесплатных кораблей
-        if (PlayerPrefs.GetInt("Ship_Owned_" + index, 0) == 1)
+        if (PlayerPrefs.GetInt($"{_savePrefix}_Owned_" + index, 0) == 1)
             return true;
 
         WebShipData ship = shipList[index];
@@ -156,14 +154,14 @@ public class VerticalShipMenu : MonoBehaviour
 #if yandexInApp
             if (YG2.iap.IsPurchased(ship.yandexProductId))
             {
-                PlayerPrefs.SetInt("Ship_Owned_" + index, 1);
+                PlayerPrefs.SetInt($"{_savePrefix}_Owned_" + index, 1);
                 PlayerPrefs.Save();
                 return true;
             }
 #elif YG_PAYMENTS
             if (YG2.iaps.IsPurchased(ship.yandexProductId))
             {
-                PlayerPrefs.SetInt("Ship_Owned_" + index, 1);
+                PlayerPrefs.SetInt($"{_savePrefix}_Owned_" + index, 1);
                 PlayerPrefs.Save();
                 return true;
             }
@@ -177,7 +175,7 @@ public class VerticalShipMenu : MonoBehaviour
     {
         if (IsShipOwned(currentSelectedIndex))
         {
-            PlayerPrefs.SetInt("SelectedShipIndex", currentSelectedIndex);
+            PlayerPrefs.SetInt($"Selected_{_savePrefix}_Index", currentSelectedIndex);
             PlayerPrefs.Save();
             UpdateButtonState();
         }
@@ -193,17 +191,12 @@ public class VerticalShipMenu : MonoBehaviour
 
         if (ship.purchaseType == PurchaseType.SoftCurrency)
         {
-            // Работаем напрямую с числом денег из сохранений YG2
             int currentCoins = YG2.saves.money; 
 
             if (currentCoins >= ship.price) 
             {
-                // Списываем баланс
                 YG2.saves.money -= ship.price;
-                
-                // Сохраняем прогресс в облако Яндекса
                 YG2.SaveProgress();
-
                 ConfirmPurchase(index);
             }
             else
@@ -245,13 +238,12 @@ public class VerticalShipMenu : MonoBehaviour
 
     private void ConfirmPurchase(int index)
     {
-        PlayerPrefs.SetInt("Ship_Owned_" + index, 1); 
-        PlayerPrefs.SetInt("SelectedShipIndex", index); 
+        PlayerPrefs.SetInt($"{_savePrefix}_Owned_" + index, 1); 
+        PlayerPrefs.SetInt($"Selected_{_savePrefix}_Index", index); 
         PlayerPrefs.Save();
         
         UpdateButtonState();
 
-        // НОВАЯ СТРОКА: Если скрипт отображения баланса на сцене, принудительно обновляем UI
         if (MainMenuDisplay.Instance != null)
         {
             MainMenuDisplay.Instance.DisplayStats();
@@ -259,5 +251,4 @@ public class VerticalShipMenu : MonoBehaviour
 
         Debug.Log($"Успешная покупка: {shipList[index].nameOfShip}");
     }
-
 }
