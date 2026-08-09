@@ -2489,6 +2489,11 @@ MonoBehaviour:
     purchaseType: 1
     price: 0
     yandexProductId: 90
+  - nameOfShip: "\u043C\u0443\u043B\u044C\u0442\u0438\u043A"
+    fbxPrefab: {fileID: 5824670795371433373, guid: f6fd568b816c64943a44efc3add3a881, type: 3}
+    purchaseType: 1
+    price: 0
+    yandexProductId: 90
 --- !u!114 &1404174333
 MonoBehaviour:
   m_ObjectHideFlags: 0
