@@ -89,7 +89,7 @@ public class procedur_generate : MonoBehaviour
             else if (totalSpawnedCount == 17) prefabToSpawn = Step3_EndChunk;
             else prefabToSpawn = GetUniqueChunk(ChunkPrefabs_step3, step3Queue);
         }
-        // STEP 4 (18 и дальше - бесконечный рандом или со стартовым чанком)
+        // STEP 4 (18 и дальше - бесконечный рандом со стартовым чанком 19-го)
         else
         {
             if (totalSpawnedCount == 18) prefabToSpawn = Step4_StartChunk;
@@ -123,11 +123,13 @@ public class procedur_generate : MonoBehaviour
     private Chunk GetUniqueChunk(Chunk[] originPrefabs, List<Chunk> shuffleQueue)
     {
         if (originPrefabs == null || originPrefabs.Length == 0) return null;
+
         if (shuffleQueue.Count == 0)
         {
             shuffleQueue.AddRange(originPrefabs);
             ShuffleList(shuffleQueue);
         }
+
         Chunk selectedChunk = shuffleQueue[0];
         shuffleQueue.RemoveAt(0);
         return selectedChunk;
