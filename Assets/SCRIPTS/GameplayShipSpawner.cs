@@ -14,15 +14,16 @@ public class GameplayShipSpawner : MonoBehaviour
 
     void Awake()
     {
+        // Удаляем только старые корабли, не трогая эффекты или камеру
         foreach (Transform child in playerRootTransform)
         {
-            if (child.gameObject.name != "Main Camera" && !child.CompareTag("MainCamera"))
+            if (child.CompareTag("Player") || child.gameObject.name.StartsWith("Ship_"))
             {
                 Destroy(child.gameObject);
             }
         }
 
-        int selectedIndex = PlayerPrefs.GetInt($"Selected_{_savePrefix}_Index", 0);
+        int selectedIndex = YG.YG2.saves.selectedShipIndex;
         if (selectedIndex >= 0 && selectedIndex < shipPrefabs.Count)
         {
             GameObject prefabToSpawn = shipPrefabs[selectedIndex];
@@ -30,6 +31,7 @@ public class GameplayShipSpawner : MonoBehaviour
             if (prefabToSpawn != null)
             {
                 GameObject spawnedShip = Instantiate(prefabToSpawn, playerRootTransform);
+                spawnedShip.name = "Ship_" + selectedIndex; // Пометка для удаления при переспавне
                 spawnedShip.transform.localPosition = Vector3.zero;
                 spawnedShip.transform.localRotation = Quaternion.identity;
                 spawnedShip.transform.localScale = Vector3.one;

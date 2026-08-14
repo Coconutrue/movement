@@ -25,6 +25,7 @@ public class VerticalShipMenu : MonoBehaviour
     [SerializeField] private TextMeshProUGUI actionButtonText; 
 
     [Header("Настройки категории")]
+    [Tooltip("Используйте 'Ship' для кораблей или 'Effect' для эффектов")]
     [SerializeField] private string _savePrefix = "Ship";
 
     [Header("3D настройки")]
@@ -57,14 +58,15 @@ public class VerticalShipMenu : MonoBehaviour
 
     void Start()
     {
-        PlayerPrefs.SetInt($"{_savePrefix}_Owned_0", 1);
-
-        if (!PlayerPrefs.HasKey($"Selected_{_savePrefix}_Index"))
+        // Гарантируем, что самый первый предмет (индекс 0) всегда куплен
+        string defaultItemKey = $"{_savePrefix}_Owned_0";
+        if (!YG2.saves.ownedItems.Contains(defaultItemKey))
         {
-            PlayerPrefs.SetInt($"Selected_{_savePrefix}_Index", 0);
-            PlayerPrefs.Save();
+            YG2.saves.ownedItems.Add(defaultItemKey);
+            YG2.SaveProgress();
         }
 
+        // Спавним кнопки в меню
         for (int i = 0; i < shipList.Count; i++)
         {
             GameObject newBtn = Instantiate(buttonPrefab, contentContainer);
@@ -119,7 +121,7 @@ public class VerticalShipMenu : MonoBehaviour
         if (actionButtonText == null) return;
 
         bool isOwned = IsShipOwned(currentSelectedIndex);
-        int activeShipIndex = PlayerPrefs.GetInt($"Selected_{_savePrefix}_Index", 0);
+        int activeShipIndex = (_savePrefix == "Ship") ? YG2.saves.selectedShipIndex : YG2.saves.selectedEffectIndex;
 
         if (isOwned)
         {
@@ -151,7 +153,10 @@ public class VerticalShipMenu : MonoBehaviour
 
     private bool IsShipOwned(int index)
     {
-        if (PlayerPrefs.GetInt($"{_savePrefix}_Owned_" + index, 0) == 1)
+        string itemKey = $"{_savePrefix}_Owned_" + index;
+        
+        // Проверяем локальный список облака Яндекса
+        if (YG2.saves.ownedItems.Contains(itemKey))
             return true;
 
         WebShipData ship = shipList[index];
@@ -160,15 +165,15 @@ public class VerticalShipMenu : MonoBehaviour
 #if yandexInApp
             if (YG2.iap.IsPurchased(ship.yandexProductId))
             {
-                PlayerPrefs.SetInt($"{_savePrefix}_Owned_" + index, 1);
-                PlayerPrefs.Save();
+                YG2.saves.ownedItems.Add(itemKey);
+                YG2.SaveProgress();
                 return true;
             }
 #elif YG_PAYMENTS
             if (YG2.iaps.IsPurchased(ship.yandexProductId))
             {
-                PlayerPrefs.SetInt($"{_savePrefix}_Owned_" + index, 1);
-                PlayerPrefs.Save();
+                YG2.saves.ownedItems.Add(itemKey);
+                YG2.SaveProgress();
                 return true;
             }
 #endif
@@ -181,8 +186,13 @@ public class VerticalShipMenu : MonoBehaviour
     {
         if (IsShipOwned(currentSelectedIndex))
         {
-            PlayerPrefs.SetInt($"Selected_{_savePrefix}_Index", currentSelectedIndex);
-            PlayerPrefs.Save();
+            // Сохраняем выбор в зависимости от префикса категории
+            if (_savePrefix == "Ship")
+                YG2.saves.selectedShipIndex = currentSelectedIndex;
+            else
+                YG2.saves.selectedEffectIndex = currentSelectedIndex;
+
+            YG2.SaveProgress();
             UpdateButtonState();
         }
         else
@@ -202,7 +212,6 @@ public class VerticalShipMenu : MonoBehaviour
             if (currentCoins >= ship.price) 
             {
                 YG2.saves.money -= ship.price;
-                YG2.SaveProgress();
                 ConfirmPurchase(index);
             }
             else
@@ -244,9 +253,19 @@ public class VerticalShipMenu : MonoBehaviour
 
     private void ConfirmPurchase(int index)
     {
-        PlayerPrefs.SetInt($"{_savePrefix}_Owned_" + index, 1); 
-        PlayerPrefs.SetInt($"Selected_{_savePrefix}_Index", index); 
-        PlayerPrefs.Save();
+        string itemKey = $"{_savePrefix}_Owned_" + index;
+        
+        if (!YG2.saves.ownedItems.Contains(itemKey))
+        {
+            YG2.saves.ownedItems.Add(itemKey);
+        }
+
+        if (_savePrefix == "Ship")
+            YG2.saves.selectedShipIndex = index;
+        else
+            YG2.saves.selectedEffectIndex = index;
+
+        YG2.SaveProgress(); // Отправляем данные на сервера Яндекса
         
         UpdateButtonState();
 

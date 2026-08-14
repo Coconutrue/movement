@@ -7,13 +7,23 @@
         false,
         false
     ],
-    "idSave": 1672,
+    "idSave": 2114,
     "isFirstGame": true,
     "language": "ru",
-    "money": 456,
+    "money": 379,
     "lastX": 462.16241455078127,
     "lastY": 1.8459999561309815,
     "lastZ": 152.77816772460938,
     "bestTime": 45,
-    "lastTime": 44
+    "lastTime": 6,
+    "ownedItems": [
+        "Ship_Owned_0",
+        "Ship_Owned_2",
+        "Effect_Owned_0",
+        "Effect_Owned_3",
+        "Effect_Owned_2",
+        "Ship_Owned_1"
+    ],
+    "selectedShipIndex": 1,
+    "selectedEffectIndex": 2
 }

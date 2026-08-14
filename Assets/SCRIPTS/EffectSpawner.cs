@@ -14,25 +14,27 @@ public class EffectSpawner : MonoBehaviour
 
     void Awake()
     {
+        // Удаляем только старые эффекты, не трогая сам корабль
         foreach (Transform child in playerRootTransform)
         {
-            if (child.gameObject.name != "Main Camera" && !child.CompareTag("MainCamera"))
+            if (child.gameObject.name.StartsWith("Effect_"))
             {
                 Destroy(child.gameObject);
             }
         }
 
-        int selectedIndex = PlayerPrefs.GetInt($"Selected_{_savePrefix}_Index", 0);
+        int selectedIndex = YG.YG2.saves.selectedEffectIndex;
         if (selectedIndex >= 0 && selectedIndex < effectPrefabs.Count)
         {
             GameObject prefabToSpawn = effectPrefabs[selectedIndex];
 
             if (prefabToSpawn != null)
             {
-                GameObject spawnedShip = Instantiate(prefabToSpawn, playerRootTransform);
-                spawnedShip.transform.localPosition = Vector3.zero;
-                spawnedShip.transform.localRotation = Quaternion.identity;
-                spawnedShip.transform.localScale = Vector3.one;
+                GameObject spawnedEffect = Instantiate(prefabToSpawn, playerRootTransform);
+                spawnedEffect.name = "Effect_" + selectedIndex; // Пометка для удаления
+                spawnedEffect.transform.localPosition = Vector3.zero;
+                spawnedEffect.transform.localRotation = Quaternion.identity;
+                spawnedEffect.transform.localScale = Vector3.one;
             }
             else
             {

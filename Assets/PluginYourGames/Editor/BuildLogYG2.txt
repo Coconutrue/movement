@@ -1,0 +1,3 @@
+﻿Build path: E:/COCONUT/UNITY_PROJECTS/movement/RESULT
+Build number: 5
+PluginYG version: 2.0092
