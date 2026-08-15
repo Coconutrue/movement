@@ -7,23 +7,26 @@
         false,
         false
     ],
-    "idSave": 2698,
+    "idSave": 2740,
     "isFirstGame": true,
     "language": "ru",
-    "money": 917,
+    "money": 442,
     "lastX": 462.16241455078127,
     "lastY": 1.8459999561309815,
     "lastZ": 152.77816772460938,
     "bestTime": 45,
-    "lastTime": 6,
+    "lastTime": 1,
     "ownedItems": [
         "Ship_Owned_0",
         "Ship_Owned_2",
         "Effect_Owned_0",
         "Effect_Owned_3",
         "Effect_Owned_2",
-        "Ship_Owned_1"
+        "Ship_Owned_1",
+        "Effect_Owned_1",
+        "Ship_Owned_3",
+        "Effect_Owned_4"
     ],
-    "selectedShipIndex": 1,
+    "selectedShipIndex": 3,
     "selectedEffectIndex": 2
 }
