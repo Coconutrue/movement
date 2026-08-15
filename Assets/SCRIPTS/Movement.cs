@@ -14,7 +14,7 @@ public class Movement : MonoBehaviour
 
     [Tooltip("Перетащите сюда дочернюю 3D-модель самолёта")]
     [SerializeField] private Transform _visualModel; 
-
+    private float _smoothSideInput = 0f;
     private float _currentTilt = 0f;
     private Quaternion _initialVisualRotation;
 
@@ -45,14 +45,26 @@ public class Movement : MonoBehaviour
 
     private void MoveStrafe()
     {
-        float sideInput = Input.GetAxis(Horizontal);
-        sideInput = -sideInput; 
+        // 1. Получаем ввод с клавиатуры и сенсора
+        float keyboardInput = Input.GetAxis(Horizontal);
+        float touchInput = MobileInput.TouchHorizontal;
 
-        float strafeDistance = sideInput * _strafeSpeed * Time.deltaTime;
+        // 2. Выбираем целевое направление
+        float targetInput = Mathf.Abs(touchInput) > 0.1f ? touchInput : keyboardInput;
 
+        // 3. ПЛАВНОСТЬ: Эмулируем поведение клавиатуры для сенсора.
+        // Меняйте цифру 5f (скорость изменения), чтобы сделать управление отзывчивее или плавнее.
+        _smoothSideInput = Mathf.MoveTowards(_smoothSideInput, targetInput, Time.deltaTime * 5f);
+
+        // 4. Применяем вашу оригинальную инверсию осей
+        float finalInput = -_smoothSideInput; 
+
+        // 5. Движение по вашей кастомной оси Vector3.forward
+        float strafeDistance = finalInput * _strafeSpeed * Time.deltaTime;
         transform.Translate(strafeDistance * Vector3.forward);
 
-        Tilt(sideInput);
+        // Наклон модели на основе сглаженного ввода
+        Tilt(finalInput);
     }
 
     private void Tilt(float inputX)
