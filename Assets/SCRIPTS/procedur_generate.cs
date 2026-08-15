@@ -7,49 +7,78 @@ public class procedur_generate : MonoBehaviour
     public Transform Player;
     public Chunk FirstChunk;
 
-    // Создаем удобную структуру для настройки шага в инспекторе
-    [System.Serializable]
-    public struct StepSettings
-    {
-        public string stepName; // Просто для красоты в инспекторе (например, "Step 1")
-        public Chunk startChunk;
-        public Chunk[] chunkPrefabs;
-        public Chunk endChunk;
-        public int chunksInThisStep; // Сколько ВСЕГО чанков должно быть в этом шаге (включая start и end)
-    }
+    [Header("Step 1 (Chunks 1-6)")]
+    public Chunk Step1_StartChunk;
+    public Chunk[] ChunkPrefabs;
+    public Chunk Step1_EndChunk;
 
-    [Header("Настройки Шагов (Задайте по очереди 1, 2, 3, 4...)")]
-    public List<StepSettings> Steps = new List<StepSettings>();
+    [Header("Step 2 (Chunks 7-12)")]
+    public Chunk Step2_StartChunk;
+    public Chunk[] ChunkPrefabs_step2;
+    public Chunk Step2_EndChunk;
 
-    [Header("Финал")]
-    public Chunk FinalChunk;
+    [Header("Step 3 (Chunks 13-18)")]
+    public Chunk Step3_StartChunk;
+    public Chunk[] ChunkPrefabs_step3;
+    public Chunk Step3_EndChunk;
+
+    [Header("Step 4 (Identical Logic)")]
+    public Chunk Step4_StartChunk;
+    public Chunk[] ChunkPrefabs_step4;
+    public Chunk Step4_EndChunk; 
+
+    [Header("Final Settings (Spawn 1 time)")]
+    public Chunk FinalChunk; 
 
     private List<Chunk> spawnedChunks = new List<Chunk>();
     private int totalSpawnedCount = 0;
-    private bool isFinalSpawned = false;
+    private bool isFinalSpawned = false; 
 
-    // Очередь для уникального перемешивания (общая для текущего шага)
-    private List<Chunk> currentStepQueue = new List<Chunk>();
-    private int lastCheckedStepIndex = -1;
+    private List<Chunk> step1Queue = new List<Chunk>();
+    private List<Chunk> step2Queue = new List<Chunk>();
+    private List<Chunk> step3Queue = new List<Chunk>();
+    private List<Chunk> step4Queue = new List<Chunk>();
+
+    private int step1_Start, step1_End;
+    private int step2_Start, step2_End;
+    private int step3_Start, step3_End;
+    private int step4_Start, step4_End;
+    private int finalIdx;
 
     private void Start()
     {
+        step1_Start = 0;
+        step1_End = step1_Start + (1 + ChunkPrefabs.Length + 1) - 1; 
+
+        step2_Start = step1_End + 1;
+        step2_End = step2_Start + (1 + ChunkPrefabs_step2.Length + 1) - 1;
+
+        step3_Start = step2_End + 1;
+        step3_End = step3_Start + (1 + ChunkPrefabs_step3.Length + 1) - 1;
+
+        step4_Start = step3_End + 1;
+        step4_End = step4_Start + (1 + ChunkPrefabs_step4.Length + 1) - 1;
+
+        finalIdx = step4_End + 1;
+
         if (FirstChunk != null)
         {
             spawnedChunks.Add(FirstChunk);
+            // ВАЖНО: Если FirstChunk НЕ является частью Step 1, 
+            // он не должен смещать счетчик. Но если он считается за первый чанк,
+            // раскомментируйте строку ниже, чтобы сдвинуть индексы:
+            // totalSpawnedCount = 1; 
         }
 
-        // Спавним стартовые чанки, чтобы игроку было где бежать
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 3; i++)
         {
             SpawnNewChunk();
         }
     }
 
+
     private void DelChunk()
     {
-        if (isFinalSpawned) return;
-
         if (spawnedChunks.Count > 0)
         {
             Chunk oldestChunk = spawnedChunks[0];
@@ -72,57 +101,40 @@ public class procedur_generate : MonoBehaviour
 
         Chunk prefabToSpawn = null;
 
-        // Находим, к какому шагу относится текущий чанк по общему счетчику
-        int currentStepIndex = -1;
-        int accumulatedChunks = 0;
-        int localIndexInStep = 0;
-
-        for (int i = 0; i < Steps.Count; i++)
-        {
-            int stepTotal = Steps[i].chunksInThisStep;
-            if (totalSpawnedCount < accumulatedChunks + stepTotal)
-            {
-                currentStepIndex = i;
-                localIndexInStep = totalSpawnedCount - accumulatedChunks;
-                break;
-            }
-            accumulatedChunks += stepTotal;
-        }
-
-        // 1. Одинаковая логика для всех шагов
-        if (currentStepIndex != -1)
-        {
-            StepSettings currentStep = Steps[currentStepIndex];
-
-            // Если перешли на новый шаг, очищаем старую очередь перемешивания
-            if (currentStepIndex != lastCheckedStepIndex)
-            {
-                currentStepQueue.Clear();
-                lastCheckedStepIndex = currentStepIndex;
-            }
-
-            // Логика внутри шага: старт, энд или рандомный уникальный чанк
-            if (localIndexInStep == 0 && currentStep.startChunk != null)
-            {
-                prefabToSpawn = currentStep.startChunk;
-            }
-            else if (localIndexInStep == currentStep.chunksInThisStep - 1 && currentStep.endChunk != null)
-            {
-                prefabToSpawn = currentStep.endChunk;
-            }
-            else
-            {
-                prefabToSpawn = GetUniqueChunk(currentStep.chunkPrefabs, currentStepQueue);
-            }
-        }
-        // 2. Если все шаги пройдены — спавним Финал
-        else
+        if (totalSpawnedCount == finalIdx)
         {
             prefabToSpawn = FinalChunk;
-            isFinalSpawned = true;
+            isFinalSpawned = true; 
+        }
+        // STEP 1
+        else if (totalSpawnedCount >= step1_Start && totalSpawnedCount <= step1_End)
+        {
+            if (totalSpawnedCount == step1_Start) prefabToSpawn = Step1_StartChunk;
+            else if (totalSpawnedCount == step1_End) prefabToSpawn = Step1_EndChunk;
+            else prefabToSpawn = GetUniqueChunk(ChunkPrefabs, step1Queue);
+        }
+        // STEP 2
+        else if (totalSpawnedCount >= step2_Start && totalSpawnedCount <= step2_End)
+        {
+            if (totalSpawnedCount == step2_Start) prefabToSpawn = Step2_StartChunk;
+            else if (totalSpawnedCount == step2_End) prefabToSpawn = Step2_EndChunk;
+            else prefabToSpawn = GetUniqueChunk(ChunkPrefabs_step2, step2Queue);
+        }
+        // STEP 3
+        else if (totalSpawnedCount >= step3_Start && totalSpawnedCount <= step3_End)
+        {
+            if (totalSpawnedCount == step3_Start) prefabToSpawn = Step3_StartChunk;
+            else if (totalSpawnedCount == step3_End) prefabToSpawn = Step3_EndChunk;
+            else prefabToSpawn = GetUniqueChunk(ChunkPrefabs_step3, step3Queue);
+        }
+        // STEP 4
+        else if (totalSpawnedCount >= step4_Start && totalSpawnedCount <= step4_End)
+        {
+            if (totalSpawnedCount == step4_Start) prefabToSpawn = Step4_StartChunk;
+            else if (totalSpawnedCount == step4_End) prefabToSpawn = Step4_EndChunk;
+            else prefabToSpawn = GetUniqueChunk(ChunkPrefabs_step4, step4Queue);
         }
 
-        // Спавн и позиционирование
         if (prefabToSpawn != null)
         {
             Chunk newChunk = Instantiate(prefabToSpawn);
@@ -130,7 +142,7 @@ public class procedur_generate : MonoBehaviour
 
             if (spawnedChunks.Count == 0)
             {
-                spawnPosition = Player.position;
+                spawnPosition = new Vector3(Player.position.x, Player.position.y, Player.position.z);
                 newChunk.transform.position = spawnPosition - (newChunk.Begin.position - newChunk.transform.position);
             }
             else
@@ -143,10 +155,6 @@ public class procedur_generate : MonoBehaviour
 
             spawnedChunks.Add(newChunk);
             totalSpawnedCount++;
-        }
-        else
-        {
-            Debug.LogWarning($"Пропущена ссылка на префаб при спавне чанка №{totalSpawnedCount}!");
         }
     }
 
