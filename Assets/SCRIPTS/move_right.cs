@@ -15,9 +15,9 @@ public class move_right : MonoBehaviour
 
     void FixedUpdate()
     {
-        Vector3 currentVelocity = rb.velocity; 
+        Vector3 currentVelocity = rb.linearVelocity; 
         currentVelocity.z = speed;
-        rb.velocity = currentVelocity;
+        rb.linearVelocity = currentVelocity;
     }
 
 }
