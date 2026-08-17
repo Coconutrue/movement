@@ -14,12 +14,6 @@ public class Movement : MonoBehaviour
     [SerializeField] private float _maxTiltAngle = 35f; 
     [SerializeField] private float _tiltSpeed = 6f;     
 
-    [Header("Настройки Свайпа / Сенсора")]
-    [Tooltip("Максимальная дистанция свайпа в пикселях для достижения полной скорости")]
-    [SerializeField] private float _swipeMaxDistance = 150f;
-    [Tooltip("Чувствительность сенсора (множитель скорости)")]
-    [SerializeField] private float _touchSensitivity = 1.2f;
-
     [Header("Ссылки")]
     [Tooltip("Перетащите сюда дочернюю 3D-модель самолёта")]
     [SerializeField] private Transform _visualModel; 
@@ -29,11 +23,9 @@ public class Movement : MonoBehaviour
     private Quaternion _initialVisualRotation;
     private Transform _transform;
 
-    // Переменные для расчета свайпа
-    private Vector2 _touchStartPos;
-    private float _touchInputX = 0f;
-    private float _lastTouchX; 
-    
+    // Переменные для кнопочного ввода
+    private float _uiInputX = 0f;
+    private float _lastUiInputX = 0f;
     private float _lastKeyboardInput = 0f;
 
     private void Start()
@@ -55,7 +47,6 @@ public class Movement : MonoBehaviour
     {
         float deltaTime = Time.deltaTime;
         
-        HandleMobileTouch(); 
         MoveForward(deltaTime);
         MoveStrafe(deltaTime);
     }
@@ -65,54 +56,9 @@ public class Movement : MonoBehaviour
         _transform.Translate(_forwardSpeed * deltaTime * Vector3.right);
     }
 
-    private void HandleMobileTouch()
-    {
-        if (Input.touchCount == 0)
-        {
-            _touchInputX = 0f;
-            return;
-        }
-
-        Touch touch = Input.GetTouch(0);
-
-        switch (touch.phase)
-        {
-            case TouchPhase.Began:
-                _touchStartPos = touch.position;
-                _lastTouchX = touch.position.x;
-                _touchInputX = 0f;
-                break;
-
-            case TouchPhase.Moved:
-                float currentX = touch.position.x;
-                
-                // Мгновенный сброс инерции при смене знака движения пальца
-                if ((currentX > _lastTouchX && _touchInputX < 0f) || (currentX < _lastTouchX && _touchInputX > 0f))
-                {
-                    _touchStartPos = touch.position;
-                    _touchInputX = 0f;
-                    _currentStrafeSpeed = 0f; // Сбрасываем физическую скорость в ноль для мгновенного отклика
-                }
-
-                _lastTouchX = currentX;
-
-                float deltaX = currentX - _touchStartPos.x;
-                _touchInputX = Mathf.Clamp(deltaX / _swipeMaxDistance, -1f, 1f) * _touchSensitivity;
-                break;
-
-            case TouchPhase.Stationary:
-                _lastTouchX = touch.position.x;
-                break;
-
-            case TouchPhase.Ended:
-            case TouchPhase.Canceled:
-                _touchInputX = 0f;
-                break;
-        }
-    }
-
     private void MoveStrafe(float deltaTime)
     {
+        // 1. Считываем клавиатуру (для тестов в редакторе)
         float keyboardInput = Input.GetAxisRaw(HorizontalAxis);
 
         // Мгновенный сброс физической скорости при смене кнопок A/D
@@ -120,25 +66,24 @@ public class Movement : MonoBehaviour
         {
             _currentStrafeSpeed = 0f; 
         }
-        
         if (Mathf.Abs(keyboardInput) > 0.01f)
         {
             _lastKeyboardInput = keyboardInput;
         }
 
-        // Целевой ввод (мгновенный, без задержек)
-        float targetInput = Mathf.Abs(_touchInputX) > 0.01f ? _touchInputX : keyboardInput;
+        // 2. Определяем итоговый ввод (приоритет у UI-кнопок, если они зажаты)
+        float targetInput = Mathf.Abs(_uiInputX) > 0.01f ? _uiInputX : keyboardInput;
         
-        // Инверсия
+        // Инверсия (сохраняем вашу исходную логику направления)
         float finalInput = -targetInput; 
 
-        // Расчет целевой скорости, к которой самолет должен стремиться
+        // Расчет целевой скорости
         float targetSpeed = finalInput * _strafeSpeed;
 
-        // ПЛАВНОСТЬ ТУТ: Самолет плавно разгоняется до целевой скорости. Не дергается, но слушается сразу!
+        // Плавный разгон и торможение через Lerp
         _currentStrafeSpeed = Mathf.Lerp(_currentStrafeSpeed, targetSpeed, deltaTime * _movementSmoothness);
 
-        // Движение на основе сглаженной скорости
+        // Движение самолета
         float strafeDistance = _currentStrafeSpeed * deltaTime;
         _transform.Translate(strafeDistance * Vector3.forward);
 
@@ -153,5 +98,22 @@ public class Movement : MonoBehaviour
         _currentTilt = Mathf.Lerp(_currentTilt, targetTilt, deltaTime * _tiltSpeed);
 
         _visualModel.localRotation = _initialVisualRotation * Quaternion.Euler(_currentTilt, 0f, 0f);
+    }
+
+    /// <summary>
+    /// Метод для вызова из UI-кнопок (устанавливает направление движения)
+    /// </summary>
+    /// <param name="value">-1 для влево, 1 для вправо, 0 если отпустили</param>
+    public void SetMobileInput(float value)
+    {
+        // УДАЛЕНО: Больше не сбрасываем _currentStrafeSpeed в 0f!
+        // Теперь самолет будет плавно гасить скорость влево и разгоняться вправо.
+
+        _uiInputX = value;
+
+        if (Mathf.Abs(value) > 0.01f)
+        {
+            _lastUiInputX = value;
+        }
     }
 }
