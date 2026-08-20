@@ -23,6 +23,9 @@ public class LoseSceneManager : MonoBehaviour
     {
         if (id == "respawn")
         {
+            // Снимаем блокировку звука сразу после закрытия рекламного окна Яндекса
+            AudioListener.pause = false;
+
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.CompleteRespawnFromMenu();
@@ -33,6 +36,7 @@ public class LoseSceneManager : MonoBehaviour
     public void ClickGoToMainMenuButton()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("Menu");
+        AudioListener.pause = false; // ГАРАНТИРУЕТ, что звук в Unity снова включится
+        SceneManager.LoadScene("Menu"); // Проверьте, что в скрипте музыки имя тоже "Menu"!
     }
 }

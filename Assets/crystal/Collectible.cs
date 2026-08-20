@@ -4,30 +4,31 @@ using YG; // Если используете PluginYG для Яндекс Игр
 public class Collectible : MonoBehaviour
 {
     public int scoreValue = 1; // Сколько очков дает объект
-    private AudioSource audioSource;
+    [Header("Настройки звука")]
+    public AudioClip collectionSound; // Сюда перетащим аудиофайл
+    
     private bool isCollected = false;
-
-    private void Start()
-    {
-        audioSource = GetComponent<AudioSource>();
-    }
 
     private void OnTriggerEnter(Collider other)
     {
+        // Проверяем, что объект еще не собран и коснулся именно Player
         if (!isCollected && other.CompareTag("Player"))
         {
             isCollected = true;
             
-            // 1. Добавляем очки в общий менеджер или статичную переменную
-            GameManager.Instance.AddScore(scoreValue);
-
-            // 2. Издаем звук (проигрываем в точку объекта, чтобы звук не обрывался при Destroy)
-            if (audioSource != null && audioSource.clip != null)
+            // 1. Добавляем очки (убедитесь, что GameManager существует в проекте)
+            if (GameManager.Instance != null)
             {
-                AudioSource.PlayClipAtPoint(audioSource.clip, transform.position);
+                GameManager.Instance.AddScore(scoreValue);
             }
 
-            // 3. Уничтожаем объект
+            // 2. Воспроизводим звук в точке сбора
+            if (collectionSound != null)
+            {
+                AudioSource.PlayClipAtPoint(collectionSound, transform.position);
+            }
+
+            // 3. Уничтожаем кристалл
             Destroy(gameObject);
         }
     }

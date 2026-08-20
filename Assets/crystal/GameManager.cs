@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
         if (Instance == null) 
         {
             Instance = this;
-            Time.timeScale = 1f; // Исправление для Задачи №2
+            Time.timeScale = 1f; 
         }
         else { Destroy(gameObject); return; }
     }
@@ -72,6 +72,12 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator UnloadMenuRoutine()
     {
+        // ГАРАНТИРОВАННО ВКЛЮЧАЕМ ЗВУК: Снимаем блокировку аудиосистемы после рекламы Яндекс Игр
+        AudioListener.pause = false; 
+
+        // Снимаем паузу времени ДО выгрузки сцены, чтобы аудио-движок Unity мгновенно обновился
+        Time.timeScale = 1f;
+
         AsyncOperation unloadOp = SceneManager.UnloadSceneAsync("EscMenu");
         while (!unloadOp.isDone)
         {
